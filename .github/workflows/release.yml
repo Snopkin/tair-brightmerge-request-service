@@ -1,0 +1,56 @@
+name: Build native installers
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+      - name: Build UI
+        working-directory: ui/brightmerge-ui
+        run: |
+          npm ci
+          npm run build
+      - name: Build macOS installer
+        run: ./gradlew --no-daemon clean jpackage
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-installer
+          path: build/jpackage/**/*
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+      - name: Build UI
+        shell: bash
+        working-directory: ui/brightmerge-ui
+        run: |
+          npm ci
+          npm run build
+      # jpackage needs WiX for MSI. If you kept installerType="exe", you can keep this too—WiX is fine.
+      - name: Install WiX Toolset
+        run: choco install wixtoolset -y
+      - name: Build Windows installer
+        run: .\gradlew.bat --no-daemon clean jpackage
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: build/jpackage/**/*
