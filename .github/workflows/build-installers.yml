@@ -1,0 +1,70 @@
+name: Build native installers
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch: {}   # allow manual runs
+
+jobs:
+  build:
+    name: ${{ matrix.os }} jpackage
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ macos-latest, windows-latest ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ----- Build the React UI -----
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install UI deps
+        working-directory: ui/brightmerge-ui
+        run: npm ci
+      - name: Build UI
+        working-directory: ui/brightmerge-ui
+        run: npm run build
+      # (The Vite build outputs to src/main/resources/static per your vite.config.js)
+
+      # ----- Build the Spring Boot app & jpackage -----
+      - name: Setup Temurin JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Cache Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Build & package
+        run: |
+          ./gradlew --no-daemon clean bootJar jpackage
+
+      # Find the produced artifact(s)
+      - name: Locate installers
+        id: find
+        shell: bash
+        run: |
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          ls -1 build/jpackage/* || true >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Upload installers
+        if: steps.find.outputs.files != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-installers
+          path: |
+            build/jpackage/**/*.dmg
+            build/jpackage/**/*.pkg
+            build/jpackage/**/*.exe
+            build/jpackage/**/*.msi
+            build/jpackage/**/*.deb
+            build/jpackage/**/*.rpm
