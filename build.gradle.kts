@@ -44,8 +44,10 @@ application {
 }
 
 // Make sure BootJar is produced (the default). If you also use 'jar', disable it:
-tasks.jar { enabled = false }
 tasks.bootJar { enabled = true }
+tasks.named<Jar>("jar") {
+	enabled = true
+}
 
 // ---- Badass JLink / JPackage configuration ----
 
