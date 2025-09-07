@@ -1,0 +1,21 @@
+services:
+  brightmerge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: brightmerge-uploader:latest
+    container_name: brightmerge-uploader
+    ports:
+      - "4141:4141"
+    environment:
+      # You can override these if you like:
+      - SERVER_PORT=4141
+      - JAVA_OPTS=-XX:MaxRAMPercentage=75.0 -Djava.awt.headless=true
+      # Where the server stores uploaded Excel files (your code already handles this)
+      - APP_UPLOAD_DIR=/data/uploads
+    volumes:
+      - uploads:/data
+    restart: unless-stopped
+
+volumes:
+  uploads:

@@ -1,0 +1,26 @@
+# Gradle
+.gradle/
+build/
+
+# Node / UI
+ui/**/node_modules/
+ui/**/dist/
+
+# VCS / IDE
+.git/
+.gitignore
+.idea/
+.vscode/
+.git
+.gradle
+build
+out
+**/.idea
+**/.vscode
+**/node_modules
+**/dist
+
+# Misc
+*.iml
+*.log
+.DS_Store

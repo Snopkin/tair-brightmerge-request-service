@@ -1,11 +1,11 @@
 // src/App.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import Form from "./components/form.jsx";
-import PreviewGrid from "./components/previewGrid.jsx";
-import SendResults from "./components/sendResults.jsx";
+import Form from "./components/Form.jsx";
+import PreviewGrid from "./components/PreviewGrid.jsx";
+import SendResults from "./components/SendResults.jsx";
 import ResultsTabs from "./components/ResultsTabs.jsx";
 import ProgressBar from "./components/ProgressBar.jsx";
-import { Alert } from "./components/ui.jsx";
+import { Alert } from "./components/Ui.jsx";
 import { postJson } from "./lib/http";
 
 export default function App() {
